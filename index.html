@@ -27,7 +27,8 @@
         }
         .res-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
         .val { font-weight: bold; color: var(--accent); font-size: 1.2em; }
-        .info { font-size: 0.85em; color: #bbb; border-top: 1px solid #444; pt: 10px; margin-top: 10px; }
+        .info { font-size: 0.85em; color: #bbb; border-top: 1px solid #444; padding-top: 10px; margin-top: 10px; line-height: 1.5; }
+        .highlight { color: #fff; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -44,7 +45,7 @@
     <label>Quantité</label>
     <input type="number" id="quantite" value="1000" oninput="calculer()">
 
-    <label>Matière (Laize 330 fixe)</label>
+    <label>Matière (Laize 330)</label>
     <select id="matiere" onchange="calculer()">
         <option value="0.45">Papier blanc</option>
         <option value="0.65">Papier structuré</option>
@@ -52,7 +53,15 @@
         <option value="0.75">Polypropylène blanc</option>
     </select>
 
-    <label>Ennoblissement (Ne s'ajoute pas au total)</label>
+    <label>Type d'impression</label>
+    <select id="impression" onchange="calculer()">
+        <option value="0.5">Sans impression (Neutre)</option>
+        <option value="0.8">Noir</option>
+        <option value="1.0">Quadri</option>
+        <option value="1.4">Quadri + Blanc couvrant</option>
+    </select>
+
+    <label>Ennoblissement (Indicatif)</label>
     <select id="ennoblissement">
         <option value="0">Aucun</option>
         <option value="160">Dorure à chaud (160 CHF)</option>
@@ -77,49 +86,54 @@
 
 <script>
 function calculer() {
-    let largeur = parseFloat(document.getElementById("largeur").value) || 0;
-    let hauteur = parseFloat(document.getElementById("hauteur").value) || 0;
-    let quantite = parseFloat(document.getElementById("quantite").value) || 0;
-    let matiere = parseFloat(document.getElementById("matiere").value);
+    let l = parseFloat(document.getElementById("largeur").value) || 0;
+    let h = parseFloat(document.getElementById("hauteur").value) || 0;
+    let q = parseFloat(document.getElementById("quantite").value) || 0;
+    let mat = parseFloat(document.getElementById("matiere").value);
+    let imp = parseFloat(document.getElementById("impression").value);
 
-    if (largeur > 0 && hauteur > 0 && quantite > 0) {
-        const LAIZE = 330;
-        const INTERCAL = 3; // Espace entre étiquettes
+    if (l > 0 && h > 0 && q > 0) {
+        const LAIZE_MAX = 330;
+        const BORD_SURETE = 10; // Marge technique Indigo
+        const GAP = 4; // Espace entre étiquettes imposé (avance et laize)
 
-        // Calcul des poses
-        let posesLaize = Math.floor((LAIZE - 10) / (largeur + INTERCAL)); // -10mm de bordure sécurité
+        // 1. Poses en laize (Largeur)
+        let posesLaize = Math.floor((LAIZE_MAX - BORD_SURETE) / (l + GAP));
         if (posesLaize < 1) posesLaize = 1;
 
-        let avanceH = hauteur + INTERCAL;
-        let nbPas = Math.ceil(quantite / posesLaize);
-        let ml = (nbPas * avanceH) / 1000;
+        // 2. Métrage linéaire (Avance)
+        let nbRangs = Math.ceil(q / posesLaize);
+        let ml = (nbRangs * (h + GAP)) / 1000;
 
-        // Calcul prix basé sur consommation laize réelle (330mm)
+        // 3. Calcul du prix (Logique Indigo 6800)
         let surfaceM2 = ml * 0.33;
-        let prixBase = surfaceM2 * quantite * matiere; 
+        let prixBase = surfaceM2 * mat * imp * 100; // Facteur d'échelle
 
-        // Dégressivité Indigo
+        // Dégressivité volume
         let coeff = 1.0;
-        if (quantite >= 50000) coeff = 0.6;
-        else if (quantite >= 10000) coeff = 0.75;
-        else if (quantite >= 5000) coeff = 0.85;
+        if (q >= 100000) coeff = 0.5;
+        else if (q >= 50000) coeff = 0.65;
+        else if (q >= 10000) coeff = 0.8;
 
-        let total = (prixBase * coeff * 0.05) + 120; // Ajustement Indigo + Frais fixes
+        let fraisFixes = 120;
+        let total = (prixBase * coeff) + fraisFixes;
+        
+        // Minimum de facturation
         if (total < 150) total = 150;
 
-        let pam = (total / quantite) * 1000;
+        let pam = (total / q) * 1000;
 
-        // Affichage
+        // Affichage des résultats
         document.getElementById("total").innerText = total.toFixed(2) + " CHF";
         document.getElementById("pam").innerText = pam.toFixed(2) + " CHF";
         document.getElementById("stats").innerHTML = 
-            "Poses en laize : <b>" + posesFront + "</b><br>" +
-            "Métrage linéaire : <b>" + ml.toFixed(1) + " m</b>";
+            "Poses de front (Laize) : <span class='highlight'>" + posesLaize + "</span><br>" +
+            "Métrage linéaire : <span class='highlight'>" + ml.toFixed(2) + " m</span><br>" +
+            "Espacement (Gaps) : <span class='highlight'>" + GAP + " mm</span>";
     }
 }
 
-// Note : Le menu déroulant d'ennoblissement est purement indicatif 
-// selon votre demande (ne modifie pas le prix total).
+// Lancement automatique au chargement
 calculer();
 </script>
 
