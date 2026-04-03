@@ -3,55 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HP</title>
+    <title>Calculateur e</title>
     <style>
         :root { 
             --grass-green: #3CB371; 
             --mid-gray: #808080; 
             --blue: #00BFFF; 
         }
+
+        /* Application de la police Fact Expanded */
         body { 
-            font-family: 'Helvetica', 'Arial', sans-serif; 
+            font-family: 'Fact Expanded', 'Helvetica Neue', Helvetica, Arial, sans-serif; 
             background-color: #ffffff; 
             display: flex; justify-content: center; padding: 20px; color: #333333; margin: 0;
         }
+
         #calc { 
             background-color: var(--mid-gray); 
             padding: 25px; border-radius: 12px; 
             width: 100%; max-width: 480px; 
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             color: white; 
+            position: relative; /* Pour le positionnement de la date */
+            padding-bottom: 40px; /* Espace pour la signature */
         }
-        h2 { text-align: center; margin-top: 0; color: white; text-transform: uppercase; letter-spacing: 2px;}
+
+        /* Titre : uniquement la lettre e en Extra Bold */
+        h1.logo { 
+            text-align: center; 
+            margin: 0 0 10px 0; 
+            color: var(--grass-green); 
+            font-weight: 900; 
+            font-size: 4em;
+            line-height: 1;
+        }
+
         label { display: block; margin: 12px 0 3px; font-size: 0.85em; font-weight: bold; color: #f0f0f0; }
+        
         input, select { 
             width: 100%; padding: 10px; border-radius: 6px; border: none; 
             background: #ffffff; color: #333333; font-size: 16px; box-sizing: border-box; 
-            margin-bottom: 5px; font-family: 'Helvetica', sans-serif;
+            margin-bottom: 5px; 
+            font-family: 'Fact Expanded', sans-serif;
         }
+
         .res-box { 
             background: #ffffff; padding: 15px; border-radius: 8px; 
             margin-top: 20px; border-left: 5px solid var(--grass-green); 
             color: #333333;
         }
+
         .res-row { display: flex; justify-content: space-between; margin-bottom: 8px; align-items: center; }
         .val { font-weight: bold; color: var(--grass-green); font-size: 1.25em; }
-        .paliers-table { width: 100%; margin-top: 20px; border-collapse: collapse; font-size: 0.85em; background: #ffffff; border-radius: 8px; overflow: hidden; color: #333333; }
+
+        .paliers-table { 
+            width: 100%; margin-top: 20px; border-collapse: collapse; 
+            font-size: 0.85em; background: #ffffff; border-radius: 8px; 
+            overflow: hidden; color: #333333; 
+        }
         .paliers-table th { background: #f0f0f0; color: var(--blue); padding: 10px; text-align: left; }
         .paliers-table td { padding: 10px; border-bottom: 1px solid #e0e0e0; }
+
         .info { font-size: 0.85em; color: #e0e0e0; border-top: 1px solid #999; padding-top: 10px; margin-top: 15px; line-height: 1.6; }
         .highlight { color: #ffffff; font-weight: bold; }
+
+        /* Signature DA / Date en bas à droite */
+        .signature {
+            position: absolute;
+            bottom: 15px;
+            right: 20px;
+            font-size: 0.7em;
+            color: #d0d0d0;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 
 <div id="calc">
-    <h2>HP</h2>
+    <h1 class="logo">e</h1>
 
-    <label>Largeur Étiquette (mm)</label>
+    <label>Largeur Étiquette mm (laize)</label>
     <input type="number" id="largeur" value="50" oninput="calculer()">
 
-    <label>Hauteur Étiquette (mm)</label>
+    <label>Hauteur Étiquette mm (avance)</label>
     <input type="number" id="hauteur" value="50" oninput="calculer()">
 
     <label>Type d'impression</label>
@@ -75,9 +110,9 @@
     <label>Type d'Ennoblissement</label>
     <select id="ennoblissement" onchange="calculer()">
         <option value="0">Aucun</option>
-        <option value="160">Dorure à chaud (+160 CHF cliché + matière)</option>
-        <option value="60">Vernis sélectif (+60 CHF)</option>
-        <option value="350">Dorure Galbée (+350 CHF outil + matière)</option>
+        <option value="160">Dorure à chaud (cliché + matière)</option>
+        <option value="60">Vernis sélectif</option>
+        <option value="350">Dorure Galbée (outil + matière)</option>
     </select>
 
     <label>Nombre de sortes (versions)</label>
@@ -106,53 +141,49 @@
     </table>
 
     <div class="info" id="stats">Saisissez les données...</div>
+
+    <div class="signature" id="dateSignature">DA / --</div>
 </div>
 
 <script>
-// Remplissage du menu Sortes (1 à 30)
-const selectSortes = document.getElementById('sortes');
+// Génération des 30 sortes
+const selSortes = document.getElementById('sortes');
 for (let i = 1; i <= 30; i++) {
     let opt = document.createElement('option');
     opt.value = i;
     opt.innerHTML = i;
-    selectSortes.appendChild(opt);
+    selSortes.appendChild(opt);
 }
+
+// Affichage de la date du jour
+const d = new Date();
+const dateStr = d.getDate().toString().padStart(2, '0') + '.' + (d.getMonth()+1).toString().padStart(2, '0') + '.' + d.getFullYear();
+document.getElementById('dateSignature').innerHTML = "DA / " + dateStr;
 
 function moteurCalcul(l, h, q, mat, imp, sortes, ennobValue) {
     const LAIZE = 330;
     const GAP = 4;
     const MARGE_HP = 10;
 
-    // 1. Poses
     let posesLaize = Math.floor((LAIZE - MARGE_HP) / (l + GAP));
     if (posesLaize < 1) posesLaize = 1;
 
-    // 2. Métrage
     let nbRangs = Math.ceil(q / posesLaize);
     let ml = (nbRangs * (h + GAP)) / 1000;
 
-    // 3. Calcul Prix Production
     let surfaceM2 = ml * 0.33;
     let prixProd = surfaceM2 * mat * imp * 115;
 
-    // 4. Impact des sortes (Frais fixes + calages supplémentaires)
     let fraisSortes = (sortes - 1) * 35; 
-
-    // 5. Impact Ennoblissement (Frais fixes + coût matière au ml)
     let fraisEnnob = parseFloat(ennobValue);
-    let extraMatiereEnnob = 0;
-    if (fraisEnnob > 0) {
-        extraMatiereEnnob = ml * 0.45; // Consommation film/vernis au mètre
-    }
+    let extraMatiereEnnob = fraisEnnob > 0 ? ml * 0.45 : 0;
 
-    // Dégressivité
     let coeff = 1.0;
     if (q >= 100000) coeff = 0.50;
     else if (q >= 50000) coeff = 0.65;
     else if (q >= 10000) coeff = 0.80;
 
     let total = (prixProd * coeff) + 120 + fraisSortes + fraisEnnob + extraMatiereEnnob;
-    
     if (total < 150) total = 150;
     let pam = (total / q) * 1000;
     
@@ -170,7 +201,6 @@ function calculer() {
 
     if (l > 0 && h > 0 && qBase > 0) {
         let resMain = moteurCalcul(l, h, qBase, mat, imp, sortes, ennob);
-        
         document.getElementById("total").innerText = resMain.total.toFixed(2) + " CHF";
         document.getElementById("pam").innerText = resMain.pam.toFixed(2) + " CHF";
         document.getElementById("stats").innerHTML = 
