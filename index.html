@@ -52,7 +52,6 @@
             overflow: hidden; color: #333333; 
         }
         
-        /* Titres de colonnes en NOIR */
         .paliers-table th { 
             background: #f0f0f0; 
             color: #000000; 
@@ -86,10 +85,10 @@
     <h1 class="logo">e</h1>
 
     <label>Largeur Étiquette mm (laize)</label>
-    <input type="number" id="largeur" value="50" oninput="calculer()">
+    <input type="number" id="largeur" placeholder="0" oninput="calculer()">
 
     <label>Hauteur Étiquette mm (avance)</label>
-    <input type="number" id="hauteur" value="50" oninput="calculer()">
+    <input type="number" id="hauteur" placeholder="0" oninput="calculer()">
 
     <label>Type d'impression</label>
     <select id="impression" onchange="calculer()">
@@ -115,6 +114,8 @@
         <option value="0">Dorure (160 Fr.)</option>
         <option value="0">Dorure galbée (350.-)</option>
         <option value="0">Flexo sélectif (60.-)</option>
+        <option value="0">Gaufrage (+350.-)</option>
+        <option value="0">Foulage</option>
     </select>
 
     <label>Nombre de sortes (versions)</label>
@@ -122,14 +123,14 @@
         </select>
 
     <label>Quantité demandée</label>
-    <input type="number" id="quantite" value="1000" oninput="calculer()">
+    <input type="number" id="quantite" placeholder="0" oninput="calculer()">
 
     <table class="paliers-table">
         <thead>
             <tr>
                 <th>Qté</th>
                 <th>Total HT</th>
-                <th>PAM</th>
+                <th>/1000</th>
             </tr>
         </thead>
         <tbody id="paliersBody"></tbody>
@@ -137,10 +138,18 @@
 
     <div class="info" id="stats">Saisissez les données...</div>
 
-    <div class="signature" id="dateSignature">DA / --</div>
+    <div class="signature" id="dateSignature">DA / --.04.2024</div>
 </div>
 
 <script>
+// Réinitialisation des champs au rafraîchissement de la page
+window.onload = function() {
+    document.getElementById("largeur").value = "";
+    document.getElementById("hauteur").value = "";
+    document.getElementById("quantite").value = "";
+    calculer(); // Met à jour l'affichage vide
+};
+
 const selSortes = document.getElementById('sortes');
 for (let i = 1; i <= 30; i++) {
     let opt = document.createElement('option');
@@ -174,7 +183,6 @@ function moteurCalcul(l, h, q, mat, imp, sortes) {
     else if (q >= 50000) coeff = 0.65;
     else if (q >= 10000) coeff = 0.80;
 
-    // Calcul sans ajout des frais d'ennoblissement (valeurs à 0)
     let total = (prixProd * coeff) + 120 + fraisSortes;
     if (total < 150) total = 150;
     let pam = (total / q) * 1000;
@@ -189,6 +197,9 @@ function calculer() {
     let sortes = parseInt(document.getElementById("sortes").value);
     let mat = parseFloat(document.getElementById("matiere").value);
     let imp = parseFloat(document.getElementById("impression").value);
+
+    let body = document.getElementById("paliersBody");
+    let stats = document.getElementById("stats");
 
     if (l > 0 && h > 0 && qBase > 0) {
         let diffs = [-500, 0, 500, 1000, 2000, 5000, 10000];
@@ -210,16 +221,18 @@ function calculer() {
             }
         });
 
-        document.getElementById("paliersBody").innerHTML = htmlPaliers;
+        body.innerHTML = htmlPaliers;
         
         if (mainRes) {
-            document.getElementById("stats").innerHTML = 
+            stats.innerHTML = 
                 "Poses de front : <span class='highlight'>" + mainRes.posesLaize + "</span> | " +
                 "Métrage (Réf.) : <span class='highlight'>" + mainRes.ml.toFixed(2) + " m</span>";
         }
+    } else {
+        body.innerHTML = "";
+        stats.innerHTML = "Saisissez les données...";
     }
 }
-calculer();
 </script>
 </body>
 </html>
