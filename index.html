@@ -7,8 +7,10 @@
     <style>
         :root { 
             --grass-green: #3CB371; 
+            /* FOND DE PAGE : NOIR 80% */
             --bg-page: rgba(0, 0, 0, 0.8);    
-            --bg-calc: rgba(0, 0, 0, 0.4);    
+            /* BOITIER : PLUS CLAIR (Utilisation d'un voile blanc léger pour éclaircir le noir de fond) */
+            --bg-calc: rgba(255, 255, 255, 0.1);    
             --blue: #00BFFF; 
             --highlight-green: rgba(60, 179, 113, 0.2); 
         }
@@ -29,7 +31,9 @@
             color: white; 
             position: relative;
             margin-top: 5px;
-            border: 1px solid rgba(255,255,255,0.1);
+            /* Bordure légère pour bien délimiter le frame */
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            backdrop-filter: blur(5px); /* Optionnel : floute légèrement le fond pour le style */
         }
 
         h1.logo { 
@@ -42,7 +46,7 @@
         .row-inputs {
             display: flex;
             align-items: flex-end;
-            gap: 10px; /* Espacement identique pour toutes les lignes */
+            gap: 10px;
             margin-bottom: 5px;
         }
         .input-group { flex: 1; }
@@ -51,7 +55,6 @@
             font-weight: bold;
             color: #f0f0f0;
         }
-        /* Separateur invisible pour la ligne du bas afin de garder le même alignement */
         .hidden-sep { visibility: hidden; }
 
         label { display: block; margin: 12px 0 3px; font-size: 0.85em; font-weight: bold; color: #f0f0f0; }
