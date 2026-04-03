@@ -9,8 +9,8 @@
             --grass-green: #3CB371; 
             /* FOND DE PAGE : NOIR 80% */
             --bg-page: rgba(0, 0, 0, 0.8);    
-            /* BOITIER : PLUS CLAIR (Utilisation d'un voile blanc léger pour éclaircir le noir de fond) */
-            --bg-calc: rgba(255, 255, 255, 0.1);    
+            /* BOITIER : PASSE DE 40% A 25% (plus transparent et léger) */
+            --bg-calc: rgba(255, 255, 255, 0.25);    
             --blue: #00BFFF; 
             --highlight-green: rgba(60, 179, 113, 0.2); 
         }
@@ -31,9 +31,8 @@
             color: white; 
             position: relative;
             margin-top: 5px;
-            /* Bordure légère pour bien délimiter le frame */
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-            backdrop-filter: blur(5px); /* Optionnel : floute légèrement le fond pour le style */
+            border: 1px solid rgba(255, 255, 255, 0.15); 
+            backdrop-filter: blur(8px); /* Flou légèrement augmenté pour l'effet 25% */
         }
 
         h1.logo { 
@@ -86,7 +85,7 @@
 
         .signature {
             position: absolute; bottom: 15px; right: 20px;
-            font-size: 0.7em; color: #888; font-weight: bold;
+            font-size: 0.7em; color: #eee; font-weight: bold;
         }
     </style>
 </head>
