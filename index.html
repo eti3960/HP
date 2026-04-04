@@ -7,9 +7,7 @@
     <style>
         :root { 
             --grass-green: #3CB371; 
-            /* FOND DE PAGE : NOIR 80% */
             --bg-page: rgba(0, 0, 0, 0.8);    
-            /* BOITIER : PASSE DE 40% A 25% (plus transparent et léger) */
             --bg-calc: rgba(255, 255, 255, 0.25);    
             --blue: #00BFFF; 
             --highlight-green: rgba(60, 179, 113, 0.2); 
@@ -32,7 +30,7 @@
             position: relative;
             margin-top: 5px;
             border: 1px solid rgba(255, 255, 255, 0.15); 
-            backdrop-filter: blur(8px); /* Flou légèrement augmenté pour l'effet 25% */
+            backdrop-filter: blur(8px);
         }
 
         h1.logo { 
@@ -48,15 +46,20 @@
             gap: 10px;
             margin-bottom: 5px;
         }
-        .input-group { flex: 1; }
+        
+        /* Ajustement des largeurs pour la ligne du bas */
+        .col-50 { flex: 2; } /* Nb Sortes */
+        .col-25 { flex: 1; } /* Quantité et Marge */
+
         .separator {
             padding-bottom: 15px;
             font-weight: bold;
             color: #f0f0f0;
         }
-        .hidden-sep { visibility: hidden; }
+        .hidden-sep { visibility: hidden; width: 10px; }
 
         label { display: block; margin: 12px 0 3px; font-size: 0.85em; font-weight: bold; color: #f0f0f0; }
+        label i { font-style: italic; text-transform: lowercase; }
         
         input, select { 
             width: 100%; padding: 10px; border-radius: 6px; border: none; 
@@ -95,12 +98,12 @@
     <h1 class="logo">e</h1>
 
     <div class="row-inputs">
-        <div class="input-group">
+        <div class="input-group col-50">
             <label>Largeur mm (L)</label>
             <input type="number" id="largeur" placeholder="0" oninput="calculer()">
         </div>
         <div class="separator">x</div>
-        <div class="input-group">
+        <div class="input-group col-50">
             <label>Hauteur mm (A)</label>
             <input type="number" id="hauteur" placeholder="0" oninput="calculer()">
         </div>
@@ -135,15 +138,24 @@
     </select>
 
     <div class="row-inputs">
-        <div class="input-group">
+        <div class="input-group col-50">
             <label>Nb de sortes</label>
             <select id="sortes" onchange="calculer()">
                 </select>
         </div>
-        <div class="separator hidden-sep">x</div>
-        <div class="input-group">
+        <div class="input-group col-25">
             <label>Quantité</label>
             <input type="number" id="quantite" placeholder="0" oninput="calculer()">
+        </div>
+        <div class="input-group col-25">
+            <label><i>m</i> %</label>
+            <select id="marge" onchange="calculer()">
+                <option value="0" selected>0</option>
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="30">30</option>
+            </select>
         </div>
     </div>
 
@@ -183,7 +195,7 @@ const d = new Date();
 const dateStr = d.getDate().toString().padStart(2, '0') + '.' + (d.getMonth()+1).toString().padStart(2, '0') + '.' + d.getFullYear();
 document.getElementById('dateSignature').innerHTML = "DA / " + dateStr;
 
-function moteurCalcul(l, h, q, mat, imp, sortes) {
+function moteurCalcul(l, h, q, mat, imp, sortes, margePourcent) {
     const LAIZE = 330;
     const GAP = 4;
     const MARGE_HP = 10;
@@ -198,10 +210,15 @@ function moteurCalcul(l, h, q, mat, imp, sortes) {
     if (q >= 100000) coeff = 0.50;
     else if (q >= 50000) coeff = 0.65;
     else if (q >= 10000) coeff = 0.80;
-    let total = (prixProd * coeff) + 120 + fraisSortes;
-    if (total < 150) total = 150;
-    let pam = (total / q) * 1000;
-    return { total, pam, posesLaize, ml };
+    
+    let totalBase = (prixProd * coeff) + 120 + fraisSortes;
+    if (totalBase < 150) totalBase = 150;
+    
+    // Application de la marge m
+    let totalFinal = totalBase * (1 + (margePourcent / 100));
+    
+    let pam = (totalFinal / q) * 1000;
+    return { total: totalFinal, pam, posesLaize, ml };
 }
 
 function calculer() {
@@ -211,6 +228,8 @@ function calculer() {
     let sortes = parseInt(document.getElementById("sortes").value);
     let mat = parseFloat(document.getElementById("matiere").value);
     let imp = parseFloat(document.getElementById("impression").value);
+    let margeVal = parseFloat(document.getElementById("marge").value) || 0;
+    
     let body = document.getElementById("paliersBody");
     let stats = document.getElementById("stats");
 
@@ -221,7 +240,7 @@ function calculer() {
         diffs.forEach(diff => {
             let qVariant = qBase + diff;
             if (qVariant > 0) {
-                let res = moteurCalcul(l, h, qVariant, mat, imp, sortes);
+                let res = moteurCalcul(l, h, qVariant, mat, imp, sortes, margeVal);
                 if (diff === 0) mainRes = res;
                 let highlightClass = (diff === 0) ? 'row-highlight' : '';
                 htmlPaliers += `<tr class="${highlightClass}">
