@@ -8,7 +8,8 @@
         :root { 
             --grass-green: #3CB371; 
             --bg-page: rgba(0, 0, 0, 0.8);    
-            --bg-calc: rgba(255, 255, 255, 0.25);    
+            /* FRAME : PASSAGE A 10% */
+            --bg-calc: rgba(255, 255, 255, 0.1);    
             --blue: #00BFFF; 
             --highlight-green: rgba(60, 179, 113, 0.2); 
             --gap-standard: 10px;
@@ -17,31 +18,33 @@
         body { 
             font-family: 'Fact Expanded', 'Helvetica Neue', Helvetica, Arial, sans-serif; 
             background-color: var(--bg-page); 
-            display: flex; justify-content: center; padding: 5px; color: white; margin: 0;
+            display: flex; justify-content: center; padding: 0; color: white; margin: 0;
             min-height: 100vh;
         }
 
         #calc { 
             background-color: var(--bg-calc); 
-            padding: 5px 25px 50px 25px; 
+            /* Réduction de la marge interne haute (padding) */
+            padding: 2px 25px 40px 25px; 
             border-radius: 12px; 
             width: 100%; max-width: 480px; 
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             color: white; 
             position: relative;
-            margin-top: 5px;
-            border: 1px solid rgba(255, 255, 255, 0.15); 
+            /* Réduction de la marge externe haute de moitié */
+            margin-top: 5px; 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
             backdrop-filter: blur(8px);
         }
 
         h1.logo { 
             text-align: center; 
-            margin: 5px 0 10px 0; 
+            /* Réduction de l'espace au-dessus du logo */
+            margin: 2px 0 10px 0; 
             color: var(--grass-green); font-weight: 900; 
             font-size: 4em; line-height: 1;
         }
 
-        /* Conteneur de ligne flexible */
         .row-inputs {
             display: flex;
             align-items: flex-end;
@@ -49,19 +52,17 @@
             margin-bottom: 5px;
         }
 
-        /* Séparateurs (visibles ou invisibles pour l'alignement) */
         .separator {
             padding-bottom: 15px;
             font-weight: bold;
             color: #f0f0f0;
-            width: 12px; /* Largeur fixe pour garantir la symétrie */
+            width: 12px; 
             text-align: center;
         }
         .hidden-sep { visibility: hidden; }
 
-        /* Proportion des colonnes */
-        .col-25 { flex: 0.5; } /* Nb sortes et Marge */
-        .col-50 { flex: 1; }   /* Quantité, Largeur, Hauteur */
+        .col-25 { flex: 0.5; } 
+        .col-50 { flex: 1; }   
 
         label { display: block; margin: 12px 0 3px; font-size: 0.85em; font-weight: bold; color: #f0f0f0; white-space: nowrap; }
         label i { font-style: italic; }
@@ -124,12 +125,11 @@
 
     <label>Type de papier (330)</label>
     <select id="matiere" onchange="calculer()">
-        <option value="0.40">Papier couché</option>
-        <option value="0.45">Papier non couché</option>
-        <option value="1.10">Papier Or / Argent</option>
-        <option value="0.70">PP Transparent</option>
-        <option value="0.65">PP Blanc</option>
-        <option value="0.85">PE Transparent</option>
+        <option value="0.40">Couché/non couché</option>
+        <option value="0.60">Structuré</option>
+        <option value="0.75">PP/PE transparent</option>
+        <option value="0.65">PP/PE blanc</option>
+        <option value="1.10">Or/Argent</option>
     </select>
 
     <label>Type d'ennoblissement</label>
